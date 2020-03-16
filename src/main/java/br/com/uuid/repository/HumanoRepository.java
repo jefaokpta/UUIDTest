@@ -6,6 +6,8 @@
 package br.com.uuid.repository;
 
 import br.com.uuid.model.Humano;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
 
@@ -14,5 +16,7 @@ import org.springframework.data.repository.CrudRepository;
  * @author jefao
  */
 public interface HumanoRepository extends CrudRepository<Humano, UUID>{
+
+    public List<Humano> findByIdade(int i);
     
 }

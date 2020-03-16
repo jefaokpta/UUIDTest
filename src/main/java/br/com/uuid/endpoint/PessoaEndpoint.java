@@ -8,7 +8,9 @@ package br.com.uuid.endpoint;
 import br.com.uuid.model.Pessoa;
 import br.com.uuid.repository.PessoaRepository;
 import java.util.ArrayList;
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,25 +21,24 @@ import org.springframework.web.bind.annotation.RestController;
  * @author jefao
  */
 @RestController
-@RequestMapping("/")
+@RequestMapping("/auto")
 public class PessoaEndpoint {
     
-    private PessoaRepository pessoaDAO;
+    private PessoaRepository dao;
     @Autowired
-    public PessoaEndpoint(PessoaRepository pessoaDAO) {
-        this.pessoaDAO = pessoaDAO;
+    public PessoaEndpoint(PessoaRepository dao) {
+        this.dao = dao;
     }
     
-    @GetMapping("encher")
-    public ResponseEntity<?> test(){
-        //var p = ;
+    @GetMapping("poe10k")
+    public ResponseEntity<?> poe10k(){
         var start = System.currentTimeMillis();
         var pessoas = new ArrayList<Pessoa>();
         for (int i = 0; i < 10000; i++) {
-            //pessoaDAO.save(new Pessoa("momoa", i));
-            pessoas.add(new Pessoa("jefao", i));
+           // pessoas.add(new Pessoa("jefao", i));
+           dao.save(new Pessoa("momoa", i));
         }
-        pessoaDAO.saveAll(pessoas);
+        //dao.saveAll(pessoas);
         var end = System.currentTimeMillis();
         System.out.println("TEMPO: " + (end - start));
         return ResponseEntity.ok(end - start);
@@ -46,10 +47,24 @@ public class PessoaEndpoint {
     @GetMapping
     public ResponseEntity<?> mostra(){
         var start = System.currentTimeMillis();
-        var fulano = pessoaDAO.findById(5649L);
+        var fulano = dao.findById(1221L);
+        fulano.ifPresentOrElse(
+                System.out::println,
+                () -> System.out.println("NADA POR AQUI"));
         var end = System.currentTimeMillis();
-        fulano.get().setAge((int) (end - start));
-        return ResponseEntity.ok(fulano.get());
+        
+        if(fulano.isPresent()){
+            fulano.get().setAge((int) (end - start));
+            return ResponseEntity.ok(fulano.get());
+        }
+        return new ResponseEntity(HttpStatus.NOT_FOUND);
     }
-
+    
+    @GetMapping("poe1")
+    public ResponseEntity<?> poe1(){
+        var start = System.currentTimeMillis();
+        dao.save(new Pessoa("momoa", 34));
+        var end = System.currentTimeMillis();
+        return new ResponseEntity(end - start, HttpStatus.CREATED);
+    }
 }
